@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>WelCome</title>
+    <link rel="stylesheet" href="/css/amazeui.css" />
+    <link rel="stylesheet" href="/css/core.css" />
+    <link rel="stylesheet" href="/css/menu.css" />
+    <link rel="stylesheet" href="/css/index.css" />
+    <link rel="stylesheet" href="/css/admin.css" />
+    <link rel="stylesheet" href="/css/page/typography.css" />
+    <link rel="stylesheet" href="/css/page/form.css" />
+    <link rel="stylesheet" href="/css/component.css" />
+    <link rel="stylesheet" href="/css/yzc.css" >
+    <!--<link rel="stylesheet" href="/css/pagination.css" >-->
+</head>
+
+<body>
+
+
+
+<header class="am-topbar am-topbar-fixed-top">
+    <div class="am-topbar-left am-hide-sm-only">
+        <a href="#" class="logo"><span id="userType">餐厅管理员</span><i class="zmdi zmdi-layers"></i></a>
+    </div>
+
+    <div class="contain">
+        <ul class="am-nav am-navbar-nav am-navbar-left">
+            <li th:unless="${session.userInfo}"><h4 class="page-title">您目前没有登陆，请先登录</h4></li>
+
+            <li th:if="${custOrderInfos} "><h4 class="page-title">订单信息</h4></li>
+            <li th:if="${session.userInfo } != null and ${custOrderInfos} == null  "><h4 class="page-title">目前没有订单信息</h4></li>
+
+        </ul>
+
+        <ul class="am-nav am-navbar-nav am-navbar-right">
+            <li class="inform"><i class="am-icon-bell-o" aria-hidden="true"></i></li>
+            <li class="hidden-xs am-hide-sm-only">
+                <form role="search" class="app-search">
+                    <input type="text" placeholder="Search..." class="form-control">
+                    <a href=""><img src="/img/search.png"></a>
+                </form>
+            </li>
+        </ul>
+    </div>
+</header>
+<!-- end page -->
+
+
+<div class="admin">
+    <div th:replace="restIndex.html::rest"></div>
+
+    <div class="content-page">
+        <!-- Start content -->
+        <div class="content">
+            <div class="card-box">
+                <div class="am-g">
+                    <div class="am-u-sm-12">
+
+                        <table class="am-table am-table-striped am-table-hover table-main">
+                            <thead>
+                            <tr>
+                                <th class="table-check"><input type="checkbox"></th>
+                                <th class="table-type">订单ID</th>
+                                <th class="table-author am-hide-sm-only">桌号</th>
+                                <th class="table-author am-hide-sm-only">人数</th>
+                                <th class="table-date am-hide-sm-only">时间</th>
+                                <th class="table-type">状态</th>
+                                <th class="table-set">操作</th>
+                            </tr>
+                            </thead>
+                            <tbody th:each="custOrderInfo:${custOrderInfos}">
+
+                            <div class="am-form">
+                                <tr>
+                                    <td><input type="checkbox" /></td>
+                                    <td>[[${custOrderInfo.getOrderid()}]]</td>
+                                    <td class="am-hide-sm-only">[[${custOrderInfo.getTableId()}]]</td>
+                                    <td class="am-hide-sm-only">[[${custOrderInfo.getPeopleNum()}]]</td>
+                                    <td>[[${#dates.format(custOrderInfo.getStartTime(),'yyyy-MM-dd HH:mm:ss')}]]</td>
+                                    <td>[[${custOrderInfo.getOrderState()}]]</td>
+
+                                    <td>
+                                        <div class="am-btn-group am-btn-group-xs">
+                                            <button th:name="${custOrderInfo.getOrderid()}" onclick="showOrderFoodInfos(this)" class="am-btn am-btn-default am-btn-xs am-text-secondary" th:disabled="${custOrderInfo.getOrderState() eq '已取消'}"><span class="am-icon-pencil-square-o"></span>菜单</button>
+                                        </div>
+
+                                    </td>
+                                </tr>
+                            </div>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<div th:replace="index::modal"></div>
+
+<div class="am-modal am-modal-alert" tabindex="-1" id="Order_Food">
+    <div style="width: 600px;" class="am-modal-dialog">
+        <div class="am-modal-bd">
+
+            <div style="margin-top: 0px;" class="content-page">
+                <h4>菜单信息</h4>
+                <div class="content">
+                    <div class="am-g">
+                        <div class="card-box">
+                            <table id="table" class="am-table">
+                                <thead>
+                                <tr >
+                                    <th  style="text-align: center;">菜品名称</th>
+                                    <th  style="text-align: center;">单价</th>
+                                    <th  style="text-align: center;">备注</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                </tbody>
+                            </table>
+
+                            <div id="show_pageInfo">
+
+                            </div>
+                            <div style="float: right;font-size: 12px;"  class="Pagination" id="show_pageNav">
+
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div class="am-modal-footer">
+            <span class="am-modal-btn">关闭</span>
+        </div>
+    </div>
+</div>
+
+<!-- navbar -->
+<a href="admin-offcanvas" class="am-icon-btn am-icon-th-list am-show-sm-only admin-menu" data-am-offcanvas="{target: '#admin-offcanvas'}"><!--<i class="fa fa-bars" aria-hidden="true"></i>--></a>
+
+<script type="text/javascript" src="/js/paging.js" ></script>
+<script type="text/javascript" src="/js/paging_for_custOrderFood.js" ></script>
+<script type="text/javascript" src="/js/jquery-2.1.0.js" ></script>
+<script type="text/javascript" src="/js/amazeui.min.js"></script>
+<script type="text/javascript" src="/js/yzc.js"></script>
+<script type="text/javascript">
+
+    function showOrderFoodInfos(button) {
+        var order_Id=$(button).attr("name");
+        setOrderId(order_Id);
+        query_Infos(1);
+        $('#Order_Food').modal();
+    }
+
+</script>
+</body>
+</html>

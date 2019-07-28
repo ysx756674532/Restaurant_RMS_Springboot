@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>WelCome</title>
+    <link rel="stylesheet" href="/css/amazeui.css" />
+    <link rel="stylesheet" href="/css/core.css" />
+    <link rel="stylesheet" href="/css/menu.css" />
+    <link rel="stylesheet" href="/css/index.css" />
+    <link rel="stylesheet" href="/css/admin.css" />
+    <link rel="stylesheet" href="/css/page/typography.css" />
+    <link rel="stylesheet" href="/css/page/form.css" />
+    <link rel="stylesheet" href="/css/component.css" />
+</head>
+<body>
+<div class="account-pages">
+    <div class="wrapper-page">
+        <div class="text-center">
+            <a href="Login.jsp" class="logo"><span>餐厅预订系统</span></a>
+        </div>
+
+        <div class="m-t-40 card-box">
+            <div class="text-center">
+                <h4 class="text-uppercase font-bold m-b-0">使用邮箱获取验证码</h4>
+            </div>
+            <div class="panel-body">
+                <div class="am-form" name="sendForm">
+                    <div class="am-form-group">
+                        <input type="email" class="am-radius" name="email" id="email"  placeholder="邮箱">
+                    </div>
+                    <div class="am-form-group">
+                        <button type="button" onclick="sendMessage()" id="sendCode" class="am-btn am-btn-primary am-radius" style="width: 100%;height: 100%;">免费获取验证码</button>
+                    </div>
+                </div>
+
+                <form class="am-form" name="registerForm">
+                    <div class="am-form-group">
+                        <select id="userType">
+                            <option value="顾客">顾客</option>
+                            <option value="餐厅管理">餐厅管理</option>
+                        </select>
+                    </div>
+
+                    <div class="am-form-group">
+                        <input type="text" class="am-radius" id="code" name="code"  placeholder="验证码">
+                    </div>
+                    <div class="am-form-group ">
+                        <button type="button" onclick="register()" class="am-btn am-btn-primary am-radius" style="width: 50%;height: 100%;">注册</button><a href="/index"><button type="button" class="am-btn am-btn-primary am-radius" style="width: 50%;height: 100%;">返回</button></a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="/js/jquery-2.1.0.js" ></script>
+<script type="text/javascript" src="/js/amazeui.min.js"></script>
+<script th:inline="javascript" type="text/javascript">
+    function sendMessage()
+    {
+        var email=document.getElementById("email");
+        if(email.value=="")
+        {
+            alert("邮箱不能为空");
+            return ;
+        }
+        var email_reg=/^([a-zA-Z]|[0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/;
+        if(!email_reg.test(email.value))
+        {
+            alert("请输入正确的邮箱地址");
+            return ;
+        }
+        $.get("/getCode",{"email":email.value},function (data) {
+            alert(data.datas.message);
+            if(data.success)
+            {
+                var wait = 60;
+                var button=document.getElementById("sendCode");
+                (function time(o) {
+                    if (wait == 0) {
+                        o.disabled=false;
+                        o.innerHTML = "免费获取验证码";
+                        wait = 60;
+                    } else {
+                        o.disabled=true;
+                        o.innerHTML = wait + "秒后可以重新发送";
+                        wait--;
+                        setTimeout(function() {
+                            time(o)
+                        }, 1000)
+                    }
+                })(button);
+            }
+        });
+    }
+    function register()
+    {
+        var type=$("#userType").val();
+        var email=document.getElementById("email");
+        var code=document.getElementById("code");
+        if(code.value=="")
+        {
+            alert("验证码不能为空");
+            return ;
+        }
+        $.get("/verification",{"code":code.value},function (data) {
+            alert(data.datas.message);
+            if(data.success) {
+                if (type == "顾客") {
+                    window.location.href = "/setCustInfo?email=" + email.value + "&userType=" + type;
+                }else
+                {
+                    window.location.href = "/setRestInfo?email=" + email.value + "&userType=" + type;
+                }
+            }
+        });
+    }
+</script>
+
+</body>
+</html>

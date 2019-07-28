@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>WelCome</title>
+    <link rel="stylesheet" href="/css/amazeui.css" />
+    <link rel="stylesheet" href="/css/core.css" />
+    <link rel="stylesheet" href="/css/menu.css" />
+    <link rel="stylesheet" href="/css/index.css" />
+    <link rel="stylesheet" href="/css/admin.css" />
+    <link rel="stylesheet" href="/css/page/typography.css" />
+    <link rel="stylesheet" href="/css/page/form.css" />
+    <link rel="stylesheet" href="/css/component.css" />
+    <link rel="stylesheet" href="/css/yzc.css" >
+</head>
+
+
+<body>
+
+
+<!-- Begin page -->
+<header class="am-topbar am-topbar-fixed-top">
+    <div class="am-topbar-left am-hide-sm-only">
+        <p href="#" class="logo"><span id="userType">餐厅管理员</span><i class="zmdi zmdi-layers"></i></p>
+    </div>
+
+    <div class="contain">
+        <ul class="am-nav am-navbar-nav am-navbar-left">
+            <li th:if="${session.userInfo}"><h4 class="page-title">餐桌信息</h4></li>
+            <li th:unless="${session.userInfo}"><h4 class="page-title">您目前没有登陆，请先登录</h4></li>
+        </ul>
+    </div>
+</header>
+<!-- end page -->
+
+
+<div class="admin">
+    <div th:replace="restIndex::rest"></div>
+
+    <!-- Start right Content here -->
+    <div class="content-page">
+        <!-- Start content -->
+        <div class="content">
+            <div class="card-box">
+                <!-- Row start -->
+                <form class="am-form" name="tableDeal">
+                    <div class="am-g">
+                        <div class="am-u-sm-12 am-u-md-6">
+                            <div class="am-btn-toolbar">
+                                <div class="am-btn-group am-btn-group-xs">
+                                    <button type="button" onclick="showAddDiv()"  class="am-btn am-btn-default"><span class="am-icon-plus"></span> 新增</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Row end -->
+
+                    <!-- Row start -->
+                    <div class="am-g">
+                        <div class="am-u-sm-12">
+
+                            <table class="am-table am-table-striped am-table-hover table-main">
+                                <thead>
+                                <tr>
+                                    <th class="table-check"><input type="checkbox"/></th>
+                                    <th class="table-title">ID</th>
+                                    <th class="table-title">容纳人数</th>
+                                    <th class="table-title">位置</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="tableinfo:${tableList}">
+                                    <td><input type="checkbox"/></td>
+                                    <td th:text="${tableinfo.getTableId()}"></td>
+                                    <td th:text="${tableinfo.getTableCapa()}"></td>
+                                    <td th:text="${tableinfo.getTablePosition()}"></td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="index::modal"></div>
+
+
+<div class="am-modal am-modal-alert" tabindex="-1" id="start_table">
+    <div style="width: 600px;" class="am-modal-dialog">
+        <div>
+            <span style="font-size: 24px;">餐桌基本信息</span><button style="float:right" class="am-modal-btn close warp thick">×</button>
+        </div>
+        <div class="card-box">
+            <div class="am-form am-form-horizontal">
+                <div class="am-form-group">
+                    <label class="am-u-sm-3 am-form-label am-text-right am-padding-right-0">餐桌编号</label>
+                    <div class="am-u-sm-9">
+                        <input type="text" id="tableId">
+                    </div>
+                </div>
+
+                <div class="am-form-group">
+                    <label class="am-u-sm-3 am-form-label am-text-right am-padding-right-0">容纳人数</label>
+                    <div class="am-u-sm-9">
+                        <input type="text" id="peopleNum">
+                    </div>
+                </div>
+
+                <div class="am-form-group">
+                    <label class="am-u-sm-3 am-form-label am-text-right am-padding-right-0">餐桌位置</label>
+                    <div class="am-u-sm-9">
+                        <input type="text" id="position">
+                    </div>
+                </div>
+
+                <div class="am-form-group">
+                        <button onclick="addTable()" class="am-btn am-btn-default">添加</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<a href="admin-offcanvas" class="am-icon-btn am-icon-th-list am-show-sm-only admin-menu" data-am-offcanvas="{target: '#admin-offcanvas'}"><!--<i class="fa fa-bars" aria-hidden="true"></i>--></a>
+<script type="text/javascript" src="/js/paging.js" ></script>
+<script type="text/javascript" src="/js/jquery-2.1.0.js" ></script>
+<script type="text/javascript" src="/js/amazeui.min.js"></script>
+<script type="text/javascript" src="/js/yzc.js"></script>
+<script th:inline="javascript" type="text/javascript">
+    var restId=[[${restId}]];
+
+    function showAddDiv() {
+        if(restId==null)
+        {
+            alert("请先登陆");
+            return;
+        }
+        $('#start_table').modal();
+    }
+    
+    function addTable() {
+        var tableId=$("#tableId").val();
+        var peopleNum=$("#peopleNum").val();
+        var position=$("#position").val();
+
+        if(tableId==""||peopleNum==""||position=="")
+        {
+            alert("请完善信息");
+            return
+        }
+
+        $.post("/addTableInfo",{"tableId":tableId,"peopleNum":peopleNum,"position":position,"restId":restId},function (result) {
+            alert(result.datas.message);
+            if(result.success)
+            {
+                window.history.go(0);
+            }
+        })
+    }
+</script>
+</body>
+
+</html>

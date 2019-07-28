@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>WelCome</title>
+    <link rel="stylesheet" href="/css/amazeui.css" />
+    <link rel="stylesheet" href="/css/core.css" />
+    <link rel="stylesheet" href="/css/menu.css" />
+    <link rel="stylesheet" href="/css/index.css" />
+    <link rel="stylesheet" href="/css/admin.css" />
+    <link rel="stylesheet" href="/css/page/typography.css" />
+    <link rel="stylesheet" href="/css/page/form.css" />
+    <link rel="stylesheet" href="/css/component.css" />
+    <link rel="stylesheet" href="/css/yzc.css" >
+</head>
+
+<div class="account-pages">
+    <div class="wrapper-page">
+        <div class="text-center">
+            <a href="#" class="logo"><span>餐厅预订系统<span></span></span></a>
+        </div>
+
+        <div class="m-t-40 card-box">
+            <div class="text-center">
+                <h4 class="text-uppercase font-bold m-b-0">欢迎您</h4>
+            </div>
+            <div class="panel-body">
+                <form class="am-form">
+                    <div class="am-g">
+
+                        <div class="am-form-group ">
+                            <a href="/custIndex"><button type="button" class="am-btn am-btn-primary am-radius" style="width: 100%;height: 100%;">顾客</button></a>
+                        </div>
+
+                        <div class="am-form-group ">
+                            <a href="/restIndex"><button type="button" class="am-btn am-btn-primary am-radius" style="width: 100%;height: 100%;">餐厅</button></a>
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="modal" class="am-modal am-modal-alert" tabindex="-1" id="my-alert">
+    <div style="width: 600px;" class="am-modal-dialog">
+        <div>
+            <button onclick="exit()" style="float:right" class="close warp thick">×</button>
+        </div>
+        <div class="am-g">
+            <div style="margin-top: 20px;" class="am-u-md-6">
+                <div class="text-center">
+                    <h4 class="text-uppercase font-bold m-b-0">请规范登陆</h4>
+                </div>
+                <div class="panel-body">
+                    <div class="am-form">
+                        <div class="am-g">
+                            <div class="am-form-group">
+                                <input id="username" name="username" type="email" class="am-radius"  placeholder="Username">
+                            </div>
+
+                            <div class="am-form-group form-horizontal m-t-20">
+                                <input id="password" name="password" type="password" class="am-radius"  placeholder="Password">
+                            </div>
+
+                            <div class="am-form-group ">
+                                <label style="font-weight: normal;color: #999;">
+                                    <input type="checkbox" class="remeber"> Remember me
+                                </label>
+                            </div>
+
+                            <div class="am-form-group ">
+                                <button onclick="Login()" class="am-btn am-btn-primary am-radius" style="float: left;  width: 40%;height: 100%;">登陆</button>
+                                <button onclick="showVideo()" class="am-btn am-btn-primary am-radius" style="float: right; width: 40%;height: 100%;">人脸识别</button>
+                            </div>
+
+                            <div style="float: right;" class="am-form-group">
+                                <a href="#" class="text-muted"><i class="fa fa-lock m-r-5"></i>还没有账户？，点击注册</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div  class="am-u-md-6">
+                <div id="videoC" class="card-box" style="display: none">
+                    <video id="video" autoplay></video>
+                    <canvas id="canvas" style="display:none"></canvas>
+                    <span id="tishi" style="color: #FF0000"></span>
+                </div>
+                <div id="imgBlog" class="card-box" style="display:block">
+                    <img style="width: 180px;height: 180px;" src="/img/yzcblog.png">
+                    <h4>微信扫扫，有惊喜哦！</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

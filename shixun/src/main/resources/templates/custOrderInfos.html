@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>WelCome</title>
+    <link rel="stylesheet" href="/css/amazeui.css" />
+    <link rel="stylesheet" href="/css/core.css" />
+    <link rel="stylesheet" href="/css/menu.css" />
+    <link rel="stylesheet" href="/css/index.css" />
+    <link rel="stylesheet" href="/css/admin.css" />
+    <link rel="stylesheet" href="/css/page/typography.css" />
+    <link rel="stylesheet" href="/css/page/form.css" />
+    <link rel="stylesheet" href="/css/component.css" />
+    <link rel="stylesheet" href="/css/yzc.css" >
+    <!--<link rel="stylesheet" href="/css/pagination.css" >-->
+</head>
+
+<body>
+
+
+
+    <header class="am-topbar am-topbar-fixed-top">
+        <div class="am-topbar-left am-hide-sm-only">
+            <a href="#" class="logo"><span id="userType">顾客</span><i class="zmdi zmdi-layers"></i></a>
+        </div>
+
+        <div class="contain">
+        <ul class="am-nav am-navbar-nav am-navbar-left">
+
+
+            <li th:unless="${session.userInfo}"><h4 class="page-title">您目前没有登陆，请先登录</h4></li>
+
+            <li th:if="${custOrderInfos} "><h4 class="page-title">订单信息</h4></li>
+            <li th:if="${session.userInfo } !=0 and ${custOrderInfos} == 0  "><h4 class="page-title">目前没有订单信息</h4></li>
+
+
+        </ul>
+
+        <ul class="am-nav am-navbar-nav am-navbar-right">
+            <li class="inform"><i class="am-icon-bell-o" aria-hidden="true"></i></li>
+            <li class="hidden-xs am-hide-sm-only">
+                <form role="search" class="app-search">
+                    <input type="text" placeholder="Search..." class="form-control">
+                    <a href=""><img src="/img/search.png"></a>
+                </form>
+            </li>
+        </ul>
+    </div>
+    </header>
+    <!-- end page -->
+
+
+    <div class="admin">
+        <div th:replace="custIndex::cust"></div>
+
+        <div class="content-page">
+            <!-- Start content -->
+            <div class="content">
+                <div class="card-box">
+                    <div class="am-g">
+                        <div class="am-u-sm-12">
+
+                            <table class="am-table am-table-striped am-table-hover table-main">
+                                <thead>
+                                <tr>
+                                    <th class="table-check"><input type="checkbox"></th>
+                                    <th class="table-type">订单ID</th>
+                                    <th class="table-type">餐厅名称</th>
+                                    <th class="table-type">地址</th>
+                                    <th class="table-author am-hide-sm-only">桌号</th>
+                                    <th class="table-author am-hide-sm-only">人数</th>
+                                    <th class="table-date am-hide-sm-only">时间</th>
+                                    <th class="table-type">状态</th>
+                                    <th class="table-set">操作</th>
+                                </tr>
+                                </thead>
+                                <tbody th:each="custOrderInfo:${custOrderInfos}">
+
+                                <div class="am-form">
+                                    <tr>
+                                        <td><input type="checkbox" /></td>
+                                        <td>[[${custOrderInfo.getOrderid()}]]</td>
+                                        <td>[[${custOrderInfo.getRestName()}]]</td>
+                                        <td>[[${custOrderInfo.getRestAddress()}]]</td>
+                                        <td class="am-hide-sm-only">[[${custOrderInfo.getTableId()}]]</td>
+                                        <td class="am-hide-sm-only">[[${custOrderInfo.getPeopleNum()}]]</td>
+                                        <td>[[${#dates.format(custOrderInfo.getStartTime(),'yyyy-MM-dd HH:mm:ss')}]]</td>
+                                        <td>[[${custOrderInfo.getOrderState()}]]</td>
+
+                                        <td>
+                                            <div class="am-btn-group am-btn-group-xs">
+                                                <button th:name="${custOrderInfo.getOrderid()}" onclick="showOrderFoodInfos(this)" class="am-btn am-btn-default am-btn-xs am-text-secondary" th:disabled="${custOrderInfo.getOrderState() eq '已取消'}"><span class="am-icon-pencil-square-o"></span>菜单</button>
+                                            </div>
+                                </div>
+                                <div class="am-btn-group am-btn-group-xs">
+                                    <button th:name="${custOrderInfo.getOrderid()}" onclick="cancelOrder(this)" class="am-btn am-btn-default am-btn-xs am-text-danger am-hide-sm-only"  th:disabled="${custOrderInfo.getOrderState() ne '预定中'}"><span class="am-icon-trash-o" th:text="${custOrderInfo.getOrderState()} eq '已取消'?'已取消':'取消'"></span></button>
+                                </div>
+                                <div class="am-btn-group am-btn-group-xs">
+                                    <button th:name="${custOrderInfo.getOrderid()}" onclick="showCommenting(this)"  class="am-btn am-btn-default am-btn-xs am-hide-sm-only" th:disabled="${custOrderInfo.getOrderState() ne ('已完成')}"><span class="am-icon-copy" th:text="${custOrderInfo.getOrderState()} eq '已评论'?'已评论':'评论'"></span></button>
+                                </div>
+                                </td>
+                                </tr>
+
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <div th:replace="index::modal"></div>
+
+    <div class="am-modal am-modal-alert" tabindex="-1" id="Order_Food">
+        <div style="width: 600px;" class="am-modal-dialog">
+            <div class="am-modal-bd">
+
+                <div style="margin-top: 0px;" class="content-page">
+                    <h4>菜单信息</h4>
+                    <div class="content">
+                        <div class="am-g">
+                            <div class="card-box">
+                                <table id="table" class="am-table">
+                                    <thead>
+                                    <tr >
+                                        <th  style="text-align: center;">菜品名称</th>
+                                        <th  style="text-align: center;">单价</th>
+                                        <th  style="text-align: center;">备注</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    </tbody>
+                                </table>
+
+                                <div id="show_pageInfo">
+
+                                </div>
+                                <div style="float: right;font-size: 12px;"  class="Pagination" id="show_pageNav">
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="am-modal-footer">
+                <span class="am-modal-btn">关闭</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="am-modal am-modal-alert" tabindex="-1" id="Order_Comment">
+        <div style="width: 600px;" class="am-modal-dialog">
+            <div>
+                <span style="font-size: 24px;">添加评论</span><butto style="float:right" class="am-modal-btn close warp thick">×</butto>
+            </div>
+            <div class="am-g">
+                <div class="am-u-md-6">
+                    <div style="width: 450px;margin-left: 50px;" class="card-box">
+                        <div class="am-form am-form-horizontal">
+                            <div class="am-form-group">
+                                <label class="am-u-sm-3 am-form-label">评价类型</label>
+                                <div class="am-u-sm-9">
+                                    <select id="commentType" name="commentType">
+                                        <option value="好评">好评</option>
+                                        <option value="差评">差评</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <input type="hidden" id="comment_orderId">
+                            <div class="am-form-group">
+                                <label class="am-u-sm-3 am-form-label">详细评价</label>
+                                <div class="am-u-sm-9">
+                                    <textarea class="am-u-md-10 form-control" rows="5" id="sketch" name="sketch"></textarea>
+                                </div>
+                            </div>
+
+                            <div style="margin-left: 40px;" class="am-form-group">
+                                <div class="am-u-sm-10">
+                                    <button onclick="commenting()" class="am-btn am-btn-default">提交登入</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- navbar -->
+    <a href="admin-offcanvas" class="am-icon-btn am-icon-th-list am-show-sm-only admin-menu" data-am-offcanvas="{target: '#admin-offcanvas'}"><!--<i class="fa fa-bars" aria-hidden="true"></i>--></a>
+
+    <script type="text/javascript" src="/js/paging.js" ></script>
+    <script type="text/javascript" src="/js/paging_for_custOrderFood.js" ></script>
+    <script type="text/javascript" src="/js/jquery-2.1.0.js" ></script>
+    <script type="text/javascript" src="/js/amazeui.min.js"></script>
+    <script type="text/javascript" src="/js/yzc.js"></script>
+    <script type="text/javascript">
+
+        function showOrderFoodInfos(button) {
+            var order_Id=$(button).attr("name");
+            setOrderId(order_Id);
+            query_Infos(1);
+            $('#Order_Food').modal();
+        }
+
+        function showCommenting(button) {
+            var order_Id=$(button).attr("name");
+
+            $("#comment_orderId").val(order_Id);
+
+            $('#Order_Comment').modal();
+
+        }
+        function commenting() {
+
+            if(window.confirm('确定要添加该评论吗？'))
+            {
+                var commentType=$("#commentType").val();
+                var sketch=$("#sketch").val();
+                var order_Id=$("#comment_orderId").val();
+                if(sketch=="")sketch="无";
+
+                $.post("/addComment",{"commentType":commentType,"sketch":sketch,"orderId":order_Id},function (data) {
+                    alert(data.datas.message);
+                    if(data.success)window.history.go(0);
+                })
+            }
+        }
+        function cancelOrder(button) {
+            if(window.confirm('确定要取消该订单吗？'))
+            {
+                var orderId=$(button).attr("name");
+
+                $.post("/cancelOrder",{"orderId":orderId},function (result) {
+                    alert(result.datas.message);
+                    if(result.success)window.history.go(0);
+                })
+            }
+        }
+    </script>
+</body>
+</html>

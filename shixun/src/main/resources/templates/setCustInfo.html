@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>WelCome</title>
+    <link rel="stylesheet" href="/css/amazeui.css" />
+    <link rel="stylesheet" href="/css/core.css" />
+    <link rel="stylesheet" href="/css/menu.css" />
+    <link rel="stylesheet" href="/css/index.css" />
+    <link rel="stylesheet" href="/css/admin.css" />
+    <link rel="stylesheet" href="/css/page/typography.css" />
+    <link rel="stylesheet" href="/css/page/form.css" />
+    <link rel="stylesheet" href="/css/component.css" />
+    <link rel="stylesheet" href="/css/yzc.css" >
+</head>
+<body>
+
+<div class="wrapper-page">
+    <div class="text-center">
+        <a href="#" class="logo"><span>顾客注册信息</span></a>
+    </div>
+    <div class="m-t-40 card-box">
+        <div class="text-center">
+            <h4 class="text-uppercase font-bold m-b-0">完善信息,否则注册失败</h4>
+        </div>
+        <div class="panel-body">
+            <div class="am-form">
+                <div class="am-g">
+                    <div class="am-form-group">
+                        <input type="text" class="am-radius" id="username"  placeholder="Username">
+                    </div>
+
+                    <div class="am-form-group form-horizontal m-t-20">
+                        <input type="password" class="am-radius" id="password" placeholder="Password">
+                    </div>
+
+                    <div class="am-form-group">
+                        <input type="text" class="am-radius" id="custName" placeholder="custName">
+                    </div>
+
+                    <div class="am-form-group">
+                        <input type="text" class="am-radius" id="address" placeholder="Address">
+                    </div>
+
+                    <div class="am-form-group">
+                        <input type="text" class="am-radius" id="number" placeholder="number">
+                    </div>
+
+                    <div class="am-form-group">
+                        <input type="text" class="am-radius" id="taste"  placeholder="taste">
+                    </div>
+
+                    <div class="am-form-group">
+                        <input type="text" class="am-radius" id="email" th:value="${email}" readonly>
+                    </div>
+                    <div class="am-form-group">
+                        <input type="text" class="am-radius" id="userType" th:value="${userType}" readonly>
+                    </div>
+                    <div class="am-form-group ">
+                        <button type="button" onclick="addCustInfo()" class="am-btn am-btn-primary am-radius" style="width: 50%;height: 100%;">注册</button><button type="button" onclick="returns()" class="am-btn am-btn-primary am-radius" style="width: 50%;height: 100%;">返回</button>
+                    </div>
+                    <button onclick="start()"  class="am-btn am-btn-primary am-radius" style="width: 100%;height: 100%;">保存人脸数据</button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="am-modal am-modal-alert" tabindex="-1" id="my-alert">
+    <div style="width: 400px;height: 369px;" class="am-modal-dialog">
+        <div>
+            <button onclick="exit()" style="float:right" class="close warp thick">×</button>
+        </div>
+
+        <div style="margin-top: 40px;width: 400px;height: 300px;" class="card-box">
+            <video id="video" autoplay></video>
+            <canvas id="canvas" style="display:none"></canvas>
+            <br/>
+            <button onclick="upImage()">添加</button>
+        </div>
+
+    </div>
+</div>
+
+
+<script type="text/javascript" src="/js/yzc.js"></script>
+<script type="text/javascript" src="/js/jquery-2.1.0.js" ></script>
+<script type="text/javascript" src="/js/amazeui.min.js"></script>
+<script th:inline="javascript" type="text/javascript">
+    function start() {
+        $('#my-alert').modal();
+        showVideo1();
+    }
+    function showVideo1()
+    {
+        if (navigator.mediaDevices.getUserMedia || navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia) {
+            getUserMedia({video : {width:200, height:200}}, success1, error);
+        } else {
+            alert('不支持访问用户媒体');
+        }
+    }
+
+    function success1(stream) {
+        video.srcObject = stream;
+        videoStream=stream.getTracks()[0];
+        video.play();
+    }
+    
+    function upImage() {
+        var video = document.getElementById('video');
+        var canvas = document.getElementById('canvas');
+        var context = canvas.getContext('2d');
+
+        canvas.width = 300;
+        canvas.height = 300;
+        context.drawImage(video, 0, 0, 300, 300);
+        var imgData = canvas.toDataURL();
+
+        //上传到后台。
+        var uploadAjax = $.ajax({
+            type: "post",
+            //后端需要调用的地址
+            url:"/addImage",
+            data: {"imgData": imgData},
+            //设置超时
+            timeout:10000,
+            async: true,
+            success: function (data) {
+                //成功后回调
+                alert(data.datas.message);
+                if(data.success)
+                {
+                    exit();
+                }
+            },
+            error: function(data) {
+                alert("内部错误");
+                $('#my-alert').modal('close');
+            },
+            //调用执行后调用的函数
+            complete: function (XMLHttpRequest, textStatus) {
+                if(textStatus == 'timeout'){
+                    uploadAjax.abort(); //取消请求
+                    //超时提示：请求超时，请重试
+                    alert("请求超时，请重试")
+                    //请求超时返回首页
+                    closeCard();
+                }
+            }
+        });
+    }
+
+    function addCustInfo() {
+        var username=$("#username").val();
+        var password=$("#password").val();
+        var custName=$("#custName").val();
+        var address=$("#address").val();
+        var number=$("#number").val();
+        var taste=$("#taste").val();
+        var email=$("#email").val();
+        var userType=$("#userType").val();
+
+        if(username==""||password==""||custName==""||address==""||
+            number==""||taste=="")
+        {
+            alert("请输入基础信息");
+            return;
+        }
+
+        $.post("/saveCustInfo",{"userName":username,"password":password,"custName":custName,"custAddress":address,
+        "custPhonenum":number,"custFlavor":taste,"email":email,"userType":userType},function (result) {
+            alert(result.datas.message);
+            window.location.href="/index";
+        })
+    }
+</script>
+
+</body>
+</html>
